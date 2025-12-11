@@ -1,7 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
-from sqlalchemy import String, Boolean
-# from sqlalchemy.orm import Mapped, mapped_column
+from datetime import datetime, timezone, timedelta
+from sqlalchemy import Numeric, String, Boolean
 from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
@@ -11,11 +10,13 @@ class User(db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
+    password_hash = db.Column(db.String(512), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     name = db.Column(db.String(120))
+    last_name = db.Column(db.String(120))
     address = db.Column(db.String(255))
+    is_active = db.Column(db.Boolean, nullable=False)
 
     # Relaciones
     orders = db.relationship("Order", backref="user", lazy=True)
@@ -33,7 +34,9 @@ class User(db.Model):
             "email": self.email,
             "is_admin": self.is_admin,
             "name": self.name,
+            "last_name": self.last_name,
             "address": self.address,
+            "is_active": self.is_active
         }
     
 
@@ -55,23 +58,29 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text, nullable=True)
-    base_price = db.Column(db.Float, nullable=False)
+    base_price = db.Column(Numeric(10, 2), nullable=False)
     image_url = db.Column(db.String(500), nullable=True)
-    stock = db.Column(db.Integer, default=0)
+    #stock = db.Column(db.Integer, default=0)
 
     category_id = db.Column(db.Integer, db.ForeignKey("categories.id"))
 
     # Relación con Variant: Un producto tiene muchas variantes
     variants = db.relationship('Variant', backref='product', lazy=True, cascade="all, delete-orphan")
 
+    @property
+    def total_stock(self):
+        """Calcula y devuelve la suma del stock de todas sus variantes"""
+        # Me aseguro de cargar variantes lazy=true
+        return sum(v.stock for v in self.variants)
+    
     def serialize(self, include_variants=False):
         data = {
             "id": self.id,
             "name": self.name,
             "description": self.description,
-            "base_price": self.base_price,
+            "base_price": float(self.base_price),
             "image_url": self.image_url,
-            "stock": self.stock,
+            "stock": self.total_stock,
             "category": self.category.name if self.category else None,
         }
         if include_variants:
@@ -102,11 +111,11 @@ class Variant(db.Model):
         }
 
 class Order(db.Model):
+    __tablename__ = "orders"
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     total_amount = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(50), default="Pending") # Pending, Shipped, Delivered
-    created_at = db.Column(db.DateTime, default=db.func.now())
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     # Campos de envío para el checkout (Frame: Checkout)
     shipping_address = db.Column(db.String(255))
     city = db.Column(db.String(100))
@@ -119,8 +128,6 @@ class Order(db.Model):
     # FK
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
-    # Items
-    items = db.relationship("OrderItem", backref="order", lazy=True, cascade="all, delete")
 
     def serialize(self):
         return {
@@ -136,13 +143,15 @@ class Order(db.Model):
 class OrderItem(db.Model):
     __tablename__ = "order_items"
     id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
-    variant_id = db.Column(db.Integer, db.ForeignKey('variant.id'), nullable=False) # Referencia a la Variante específica
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
+    variant_id = db.Column(db.Integer, db.ForeignKey('variants.id'), nullable=False) # Referencia a la Variante específica
     quantity = db.Column(db.Integer, nullable=False)
     price_at_purchase = db.Column(db.Float, nullable=False) # Precio al momento de la compra
 
-    product_id = db.Column(db.Integer, db.ForeignKey("products.id"))
-    product = db.relationship("Product", lazy=True)
+    #product_id = db.Column(db.Integer, db.ForeignKey("products.id"))
+    #product = db.relationship("Product", lazy=True)
+
+    # Relación: cada OrderItem apunta a una Variant
     variant = db.relationship('Variant')
 
     def serialize(self):
@@ -151,9 +160,9 @@ class OrderItem(db.Model):
             "variant_id": self.variant_id,
             "quantity": self.quantity,
             "price_at_purchase": self.price_at_purchase,
-            "product_name": self.variant.product.name,
-            "size": self.variant.size,
-            "color": self.variant.color,
+            "product_name": self.variant.product.name if self.variant else None,
+            "size": self.variant.size if self.variant else None,
+            "color": self.variant.color if self.variant else None,
         }
     
 class Cart(db.Model):
@@ -190,5 +199,8 @@ class CartItem(db.Model):
             "id": self.id,
             "quantity": self.quantity,
             "product_id": self.product_id,
-            "product": self.product.serialize() if self.product else None
+            "variant_id": self.variant_id,
+            "product": self.product.serialize() if self.product else None,
+            "size": self.variant.size if self.variant else None,
+            "color": self.variant.color if self.variant else None,
         }
