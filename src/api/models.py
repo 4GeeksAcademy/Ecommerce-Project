@@ -32,9 +32,6 @@ class User(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "username": self.username,
-            "first_name": self.first_name,
-            "last_name": self.last_name,
             "email": self.email,
             "is_admin": self.is_admin,
             "name": self.name,
@@ -72,6 +69,7 @@ class Product(db.Model):
     # Relación con Variant: Un producto tiene muchas variantes
     variants = db.relationship(
         'Variant', backref='product', lazy=True, cascade="all, delete-orphan")
+    images = db.relationship('ProductImage', backref='product', lazy=True, cascade="all, delete-orphan")
 
     @property
     def total_stock(self):
@@ -79,7 +77,7 @@ class Product(db.Model):
         # Me aseguro de cargar variantes lazy=true
         return sum(v.stock for v in self.variants)
 
-    def serialize(self, include_variants=False):
+    def serialize(self, include_variants=False, include_images=True):
         data = {
             "id": self.id,
             "name": self.name,
@@ -91,6 +89,10 @@ class Product(db.Model):
         }
         if include_variants:
             data["variants"] = [v.serialize() for v in self.variants]
+        
+        if include_images:
+            data["gallery"] = [img.serialize() for img in self.images]
+
         return data
 
 
@@ -161,7 +163,7 @@ class OrderItem(db.Model):
         'variants.id'), nullable=False)  # Referencia a la Variante específica
     quantity = db.Column(db.Integer, nullable=False)
     # Precio al momento de la compra
-    price_at_purchase = db.Column(db.Float, nullable=False)
+    price_at_purchase = db.Column(Numeric(10, 2), nullable=False)
 
     # product_id = db.Column(db.Integer, db.ForeignKey("products.id"))
     # product = db.relationship("Product", lazy=True)
@@ -221,4 +223,18 @@ class CartItem(db.Model):
             "product": self.product.serialize() if self.product else None,
             "size": self.variant.size if self.variant else None,
             "color": self.variant.color if self.variant else None,
+        }
+
+class ProductImage(db.Model):
+    __tablename__ = "product_images"
+    id = db.Column(db.Integer, primary_key=True)
+    url = db.Column(db.String(500), nullable=False)
+    is_main = db.Column(db.Boolean, default=False) # Si es la imagen principal
+    product_id = db.Column(db.Integer, db.ForeignKey("products.id"), nullable=False)
+    
+    def serialize(self):
+        return {
+            "id": self.id,
+            "url": self.url,
+            "is_main": self.is_main,
         }
