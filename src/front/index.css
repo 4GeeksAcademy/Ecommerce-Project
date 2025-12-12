@@ -3,3 +3,27 @@ body,
 #root {
   height: 100%;
 }
+.compra-container {
+  position: relative;
+}
+.compra-container .carousel {
+  height: 80vh;
+}
+
+.compra-final {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  background-color: rgba(0, 0, 0, 0.9);
+  color: rgb(200, 198, 198);
+  text-align: center;
+  padding: 20px;
+}

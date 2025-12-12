@@ -1,8 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useFavorites } from "./FavoritesContext.jsx";
+import { MdAddShoppingCart } from "react-icons/md";
 
-export const Card = ({ id, name, price, image }) => {
+export const Card = ({ id, name, price, image, onAddToCart }) => {
   const { favorites, toggleFavorite } = useFavorites();
 
   const isFavorite = favorites.includes(id);
@@ -34,8 +35,8 @@ export const Card = ({ id, name, price, image }) => {
           <button
             type="button"
             onClick={(e) => {
-              e.preventDefault();    
-              e.stopPropagation();   
+              e.preventDefault();
+              e.stopPropagation();
               toggleFavorite(id);
             }}
             className="border-0 p-0"
@@ -49,18 +50,22 @@ export const Card = ({ id, name, price, image }) => {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: "rgba(0, 0, 0, 0.6)", 
+              backgroundColor: "rgba(0, 0, 0, 0.6)",
             }}
           >
             <i
               className={
                 isFavorite
-                  ? "fa-solid fa-heart text-danger"  
-                  : "fa-regular fa-heart text-white" 
+                  ? "fa-solid fa-heart text-danger"
+                  : "fa-regular fa-heart text-white"
               }
               style={{ fontSize: "1rem" }}
             ></i>
           </button>
+          <button type="button" onClick={(e) => {
+            e.preventDefault(); e.stopPropagation(); if (onAddToCart) onAddToCart({ id, name, price, image });
+          }} className="btn btn-dark w-25 mt-2"><MdAddShoppingCart className="" color="white" /></button>
+
         </div>
 
         <div className="card-body px-0">
@@ -68,6 +73,8 @@ export const Card = ({ id, name, price, image }) => {
           <p className="mb-0 fw-semibold">{price}</p>
         </div>
       </Link>
+
+
     </div>
   );
 };

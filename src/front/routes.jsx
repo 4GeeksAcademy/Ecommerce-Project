@@ -22,6 +22,10 @@ import { Users } from "./pages/Users";
 import { Login } from "./pages/Login";
 import { Signup } from "./pages/Signup";
 import { Private } from "./pages/Private";
+import { Carrito } from "./pages/Carrito";
+import { Checkout } from "./pages/Checkout";
+import { Comprar } from "./pages/Comprar";
+
 
 const logged = true;
 
@@ -45,13 +49,23 @@ export const router = createBrowserRouter(
       <Route path="admin" element={<Admin />}>
         <Route path="variants" element={<Variants />} />
         <Route path="orders" element={<Orders />} />
-        <Route path="users" element={<Users />} />   
+        <Route path="users" element={<Users />} />
       </Route>
-     
+
 
 
       <Route path="login" element={<Login />} />
       <Route path="signup" element={<Signup />} />
+      {/* Nested Routes: Defines sub-routes within the BaseHome component. */}
+      <Route path="/" element={<Home />} />
+      <Route path="/single/:theId" element={<Single />} />  {/* Dynamic route for single items */}
+      <Route path="/demo" element={<Demo />} />
+      <Route path="/product/:id" element={<ProductDetails />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="carrito" element={<Carrito />} />
+      <Route path="/checkout" element={<Checkout />} />
+      <Route path="/comprar" element={<Comprar />} />
 
       {logged
         ? <Route path="private" element={<Private />} />

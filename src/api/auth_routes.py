@@ -3,7 +3,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
@@ -65,7 +65,7 @@ def login():
         return jsonify({"msg": "Credenciales inválidas"}), 401
     
     # Crear token de acceso y expiración
-    expires = datetime.timedelta(days=10)
+    expires = timedelta(days=10)
     access_token = create_access_token(identity=str(user.id), expires_delta=expires)
 
     datos = {
@@ -106,7 +106,7 @@ def update_user_profile():
     data = request.get_json() or {}
 
     user.name = data.get("name", user.name)
-    user.last_name = data.get("last_name", user.address)
+    user.last_name = data.get("last_name", user.last_name)
     user.address = data.get("address", user.address)
     user.email = data.get("email", user.email) 
 

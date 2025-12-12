@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useOutletContext } from "react-router-dom";
 
 
 const products = [
@@ -33,7 +33,7 @@ export const ProductDetails = () => {
   const product = products.find((p) => p.id === Number(id)) || products[0];
 
   const [selectedImage, setSelectedImage] = useState(product.images[0]);
-  const [selectedSize, setSelectedSize] = useState(product.sizes[2]); 
+  const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
   const [selectedColor, setSelectedColor] = useState(product.colors[0].value);
   const [quantity, setQuantity] = useState(1);
 
@@ -46,14 +46,45 @@ export const ProductDetails = () => {
   };
 
   const handleAddToCart = () => {
-    alert(
-      `Añadido al carrito: ${product.name} - Talla ${selectedSize} - Color ${selectedColor} - Cantidad ${quantity}`
+    const productToAdd = {
+      id: product.id,
+      name: product.name,
+      price: `€${product.price.toFixed(2)}`,
+      image: selectedImage,
+      size: selectedSize,
+      color: selectedColor,
+    };
+
+    const exists = cart.find(
+      (p) =>
+        p.id === productToAdd.id &&
+        p.size === productToAdd.size &&
+        p.color === productToAdd.color
     );
+
+    if (exists) {
+      const updated = cart.map((p) =>
+        p.id === productToAdd.id &&
+          p.size === productToAdd.size &&
+          p.color === productToAdd.color
+          ? { ...p, quantity: (p.quantity || 1) + quantity }
+          : p
+      );
+      setCart(updated);
+    } else {
+      setCart((prev) => [...prev, { ...productToAdd, quantity }]);
+    }
   };
+
 
   const handleBuyNow = () => {
     alert("Aquí iría el flujo de 'Comprar ahora' ");
   };
+
+
+
+  const { cart, setCart } = useOutletContext();
+
 
   return (
     <div className="container my-5">
@@ -68,7 +99,7 @@ export const ProductDetails = () => {
       <div className="row g-5">
         {/* Columna izquierda: imagen grande + miniaturas */}
         <div className="col-12 col-lg-6">
-         
+
           <div
             className="mb-3"
             style={{
@@ -89,7 +120,7 @@ export const ProductDetails = () => {
             />
           </div>
 
-        
+
           <div className="d-flex gap-3">
             {product.images.map((img, index) => (
               <button
@@ -141,9 +172,8 @@ export const ProductDetails = () => {
                     key={size}
                     type="button"
                     onClick={() => setSelectedSize(size)}
-                    className={`btn btn-sm ${
-                      isActive ? "btn-dark text-white" : "btn-outline-secondary"
-                    }`}
+                    className={`btn btn-sm ${isActive ? "btn-dark text-white" : "btn-outline-secondary"
+                      }`}
                     style={{ minWidth: "48px" }}
                   >
                     {size}
