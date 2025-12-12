@@ -2,7 +2,7 @@ import os
 import inspect
 from flask_admin import Admin
 from . import models
-from .models import db
+from .models import db, User, Cart, CartItem, Category, Order, OrderItem, Product, ProductImage, Variant
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.theme import Bootstrap4Theme
 
@@ -12,7 +12,21 @@ def setup_admin(app):
     admin = Admin(app, name='4Geeks Admin', theme=Bootstrap4Theme(swatch='cerulean'))
 
     # Dynamically add all models to the admin interface
-    for name, obj in inspect.getmembers(models):
+    #for name, obj in inspect.getmembers(models):
         # Verify that the object is a SQLAlchemy model before adding it to the admin. 
-        if inspect.isclass(obj) and issubclass(obj, db.Model):
-            admin.add_view(ModelView(obj, db.session))
+        #if inspect.isclass(obj) and issubclass(obj, db.Model):
+            #admin.add_view(ModelView(obj, db.session))
+
+    admin.add_view(ModelView(User, db.session))
+
+    # You can duplicate that line to add mew models
+    admin.add_view(ModelView(Cart, db.session))
+    admin.add_view(ModelView(CartItem, db.session))
+    admin.add_view(ModelView(Category, db.session))
+    admin.add_view(ModelView(Order, db.session))
+    admin.add_view(ModelView(OrderItem, db.session))
+    admin.add_view(ModelView(Product, db.session))
+    admin.add_view(ModelView(ProductImage, db.session))
+    admin.add_view(ModelView(Variant, db.session))
+
+

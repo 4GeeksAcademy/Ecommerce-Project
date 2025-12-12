@@ -5,9 +5,10 @@ import os
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
+from flask_jwt_extended import JWTManager
 from api.utils import APIException, generate_sitemap
 from api.models import db
-from api.auth_routes import api
+
 from api.admin import setup_admin
 from api.commands import setup_commands
 
@@ -28,8 +29,13 @@ else:
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/test.db"
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["JWT_SECRET_KEY"] = "my_secret_key"
+
 MIGRATE = Migrate(app, db, compare_type=True)
 db.init_app(app)
+
+# JWT
+jwt = JWTManager(app)
 
 # add the admin
 setup_admin(app)
@@ -37,8 +43,22 @@ setup_admin(app)
 # add the admin
 setup_commands(app)
 
+
+
+# Importar los Blueprints DESPUÉS de inicializar 'app' y 'db'
+from api.auth_routes import auth
+from api.cart_routes import cart_order
+from api.product_routes import product
+
 # Add all endpoints form the API with a "api" prefix
-app.register_blueprint(api, url_prefix='/api')
+app.register_blueprint(auth, url_prefix='/api/auth')
+
+# Registrar rutas de productos
+app.register_blueprint(product, url_prefix='/api/') 
+
+# Registrar rutas de carrito/pedidos
+app.register_blueprint(cart_order, url_prefix='/api/') 
+
 
 # Handle/serialize errors like a JSON object
 
