@@ -1,4 +1,4 @@
-// src/pages/ProductDetails.jsx
+
 import React, { useState } from "react";
 import { useParams, Link, useOutletContext } from "react-router-dom";
 
@@ -33,7 +33,7 @@ export const ProductDetails = () => {
   const product = products.find((p) => p.id === Number(id)) || products[0];
 
   const [selectedImage, setSelectedImage] = useState(product.images[0]);
-  const [selectedSize, setSelectedSize] = useState(product.sizes[2]); // M
+  const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
   const [selectedColor, setSelectedColor] = useState(product.colors[0].value);
   const [quantity, setQuantity] = useState(1);
 
@@ -88,8 +88,8 @@ export const ProductDetails = () => {
 
   return (
     <div className="container my-5">
-      {/* Botón VOLVER  */}
 
+      {/* Botón VOLVER  */}
       <div className="mb-3">
         <Link to="/" className="btn btn-outline-secondary btn-sm">
           ← Volver

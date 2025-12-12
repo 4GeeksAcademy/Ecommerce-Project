@@ -1,4 +1,3 @@
-// src/components/Footer.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -7,6 +6,7 @@ export const Footer = () => {
     <footer className="bg-black text-light mt-5 pt-5">
       <div className="container pb-4 mt-5">
         <div className="row gy-4">
+
           {/* Columna 1: Marca */}
           <div className="col-12 col-md-3">
             <h3 className="fw-bold">
