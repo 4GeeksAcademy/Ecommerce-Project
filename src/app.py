@@ -11,6 +11,9 @@ from api.models import db
 from flask_cors import CORS
 from api.admin import setup_admin
 from api.commands import setup_commands
+from api.auth_routes import auth
+from api.cart_routes import cart_order
+from api.product_routes import product
 
 # from models import Person
 

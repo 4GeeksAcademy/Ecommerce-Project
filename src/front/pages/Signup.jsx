@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 export const Signup = () => {
 
-    const [Name, setName] = useState("");
+    const [name, setName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -15,7 +15,7 @@ export const Signup = () => {
         e.preventDefault();
 
         // Validamos campos vacíos
-        if (!Name || !lastName || !email || !password || !confirmPassword) {
+        if (!name || !lastName || !email || !password || !confirmPassword) {
             alert("Por favor complete todos los campos");
             return;
         }
@@ -61,7 +61,7 @@ export const Signup = () => {
 
                 <form className="row gy-3 mx-auto text-center">
                     <div className="col-4">
-                        <input type="text" className="form-control" id="autoSizingInputName" placeholder="Nombre" value={Name} onChange={(e) => setName(e.target.value)} required></input>
+                        <input type="text" className="form-control" id="autoSizingInputName" placeholder="Nombre" value={name} onChange={(e) => setName(e.target.value)} required></input>
                     </div>
                     <div className="col-4">
                         <input type="text" className="form-control" id="autoSizingInputLastname" placeholder="Apellido" value={lastName} onChange={(e) => setLastName(e.target.value)} required></input>

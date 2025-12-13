@@ -168,3 +168,15 @@ def delete_user():
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": "Error al desactivar la cuenta", "error": str(e)}), 500
+
+@auth.route("/users", methods=["GET"])
+# @jwt_required() 
+def get_all_users():
+    # Consultar todos los usuarios en la base de datos
+    users = User.query.all()
+    
+    # Serializar los usuarios
+    all_users_serialized = [user.serialize() for user in users]
+    
+    # Devolver la lista como respuesta JSON
+    return jsonify(all_users_serialized), 200
