@@ -12,7 +12,7 @@ export const Home = () => {
       id: 1,
       name: "Vestido elegante",
       price: "€89.99",
-      image: "https://via.placeholder.com/600x400?text=Vestido",
+      image: "https://res.cloudinary.com/dds1yrxvu/image/upload/v1765810190/Captura_de_pantalla_2025-12-15_a_la_s_11.40.51_a.m._o5loax.png",
     },
   ];
 

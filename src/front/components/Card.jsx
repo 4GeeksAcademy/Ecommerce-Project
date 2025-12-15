@@ -22,7 +22,7 @@ export const Card = ({ id, name, price, image, onAddToCart }) => {
                     }}
                 >
                     <img
-                        src={"https://picsum.photos/600/400"}
+                        src={"https://res.cloudinary.com/dds1yrxvu/image/upload/v1765810190/Captura_de_pantalla_2025-12-15_a_la_s_11.40.51_a.m._o5loax.png"}
                         alt={name}
                         style={{
                             width: "100%",

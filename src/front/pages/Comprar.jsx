@@ -8,12 +8,10 @@ import { Carousel } from "../components/Carousel";
 
 export const Comprar = () => {
 
-
     return (
 
         <div className="compra-container w-100">
             <Carousel />
-
 
             <div className="compra-final mt-5 text-center">
 
@@ -28,10 +26,7 @@ export const Comprar = () => {
                 <h3>Gracias por preferirnos <RiUserHeartFill /></h3>
 
                 <Link to="/home" className="link-info">Volver al inicio</Link>
-
             </div>
         </div>
     )
-
-
 }
