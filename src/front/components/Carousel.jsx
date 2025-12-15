@@ -12,13 +12,16 @@ export const Carousel = () => {
 
       <div className="carousel-inner">
         <div className="carousel-item active">
-          <img src="https://picsum.photos/id/56/800/400" className="d-block w-100" alt="Moda 1" />
+         <div className="radio radio-21x">
+           <img 
+           src="https://res.cloudinary.com/dds1yrxvu/image/upload/v1765571800/main-sample.png" className="d-block w-100 h-100 object-fit-cover" alt="Moda 1" />
+         </div>
         </div>
         <div className="carousel-item">
-          <img src="https://picsum.photos/id/59/800/400" className="d-block w-100" alt="Moda 2" />
+          <img src="https://res.cloudinary.com/dds1yrxvu/image/upload/v1765571799/cld-sample-5.jpg" className="d-block w-100" alt="Moda 2" />
         </div>
         <div className="carousel-item">
-          <img src="https://picsum.photos/id/94/800/400" className="d-block w-100" alt="Moda 3" />
+          <img src="https://res.cloudinary.com/dds1yrxvu/image/upload/v1765571775/samples/ecommerce/analog-classic.jpg" className="d-block w-100" alt="Moda 3" />
         </div>
       </div>
 

@@ -20,7 +20,7 @@ export const Card = ({ id, name, price, image, onAddToCart }) => {
                         height: "220px",
                         overflow: "hidden",
                     }}
-                >
+                > 
                     <img
                         src={"https://res.cloudinary.com/dds1yrxvu/image/upload/v1765810190/Captura_de_pantalla_2025-12-15_a_la_s_11.40.51_a.m._o5loax.png"}
                         alt={name}
