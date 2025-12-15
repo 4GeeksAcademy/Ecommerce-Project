@@ -8,9 +8,12 @@ from flask_swagger import swagger
 from flask_jwt_extended import JWTManager
 from api.utils import APIException, generate_sitemap
 from api.models import db
-
+from flask_cors import CORS
 from api.admin import setup_admin
 from api.commands import setup_commands
+from api.auth_routes import auth
+from api.cart_routes import cart_order
+from api.product_routes import product
 
 # from models import Person
 
@@ -19,6 +22,8 @@ static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../dist/')
 app = Flask(__name__)
 app.url_map.strict_slashes = False
+
+CORS(app)
 
 # database condiguration
 db_url = os.getenv("DATABASE_URL")

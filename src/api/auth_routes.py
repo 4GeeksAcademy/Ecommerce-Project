@@ -6,12 +6,12 @@ from api.models import db, User
 from datetime import datetime, timedelta
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from api.utils import generate_sitemap, APIException
-from flask_cors import CORS
+#from flask_cors import CORS
 
 auth = Blueprint('auth', __name__)
 
 # Allow CORS requests to this API
-CORS(auth)
+#CORS(auth)
 
 
 @auth.route('/hello', methods=['POST', 'GET'])
@@ -168,3 +168,15 @@ def delete_user():
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": "Error al desactivar la cuenta", "error": str(e)}), 500
+
+@auth.route("/users", methods=["GET"])
+# @jwt_required() 
+def get_all_users():
+    # Consultar todos los usuarios en la base de datos
+    users = User.query.all()
+    
+    # Serializar los usuarios
+    all_users_serialized = [user.serialize() for user in users]
+    
+    # Devolver la lista como respuesta JSON
+    return jsonify(all_users_serialized), 200

@@ -4,33 +4,55 @@ import { useNavigate } from "react-router-dom";
 
 export const Signup = () => {
 
-    const [Name, setName] = useState("");
-    const [LastName, setLastName] = useState("");
+    const [name, setName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-
     const navigate = useNavigate();
 
-
-    const handleRegistro = (e) => {
+    const handleRegistro = async(e) => {
         e.preventDefault();
 
-        if (!Name || !LastName || !email || !password || !confirmPassword) {
+        // Validamos campos vacíos
+        if (!name || !lastName || !email || !password || !confirmPassword) {
             alert("Por favor complete todos los campos");
             return;
         }
-
+        // Validar la coincidencia de contraseña
         if (password !== confirmPassword) {
             alert("Las contraseñas no coinciden");
             return;
         }
 
-        localStorage.setItem("Name", Name);
-        navigate("/login");
-    };
+        // localStorage.setItem("Name", Name);
+        // navigate("/login");
 
+        try {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          last_name: lastName,
+          email,
+          password,
+        }),
+      });
 
+      if (!res.ok) {
+        alert("Error al registrarse");
+        return;
+      }
+
+      alert("Usuario creado exitosamente");
+      navigate("/login");
+    } catch (error) {
+      console.error(error);
+      alert("Error en el servidor");
+    }
+  };
+  
     return (
         <div className="container">
 
@@ -39,10 +61,10 @@ export const Signup = () => {
 
                 <form className="row gy-3 mx-auto text-center">
                     <div className="col-4">
-                        <input type="text" className="form-control" id="autoSizingInputName" placeholder="Nombre" value={Name} onChange={(e) => setName(e.target.value)} required></input>
+                        <input type="text" className="form-control" id="autoSizingInputName" placeholder="Nombre" value={name} onChange={(e) => setName(e.target.value)} required></input>
                     </div>
                     <div className="col-4">
-                        <input type="text" className="form-control" id="autoSizingInputLastname" placeholder="Apellido" value={LastName} onChange={(e) => setLastName(e.target.value)} required></input>
+                        <input type="text" className="form-control" id="autoSizingInputLastname" placeholder="Apellido" value={lastName} onChange={(e) => setLastName(e.target.value)} required></input>
                     </div>
                     <div className="col-4">
                         <div className="input-group">

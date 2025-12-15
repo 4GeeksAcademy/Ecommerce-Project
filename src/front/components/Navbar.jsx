@@ -6,14 +6,21 @@ import { FaRegHeart } from "react-icons/fa6";
 import { IoExitOutline } from "react-icons/io5";
 import { useFavorites } from "./FavoritesContext.jsx";
 import { useState } from "react";
+import useGlobalReducer from "../hooks/useGlobalReducer";
+
 
 export const Navbar = ({ cart }) => {
   const navigate = useNavigate();
   const { favorites } = useFavorites();
   const [searchTerm, setSearchTerm] = useState("");
+  const { store, dispatch } = useGlobalReducer();
 
+  // const handleLogout = () => {
+  //   localStorage.removeItem("logged");
+  //   navigate("/login");
+  // };
   const handleLogout = () => {
-    localStorage.removeItem("logged");
+    dispatch({ type: "LOGOUT" }); // limpia store y localStorage
     navigate("/login");
   };
 
@@ -137,13 +144,25 @@ export const Navbar = ({ cart }) => {
               )}
             </li>
 
-            <li className="nav-item ms-auto">
-              <Link className="nav-link" to="/login"> <FaUser /> <IoExitOutline className="" onClick={handleLogout} /></Link>
+            <li className="nav-item ms-auto">{store.auth.isLoggedIn ? (
+                <>
+                  <span className="me-2">Hola, {store.auth.user?.name}</span>
+                  <IoExitOutline
+                    className="text-danger"
+                    style={{ cursor: "pointer" }}
+                    onClick={handleLogout}
+                  />
+                </>
+              ) : (
+                <Link className="nav-link" to="/login">
+                  <FaUser />
+                </Link>
+              )}
             </li>
-
           </ul>
         </div>
       </div>
     </nav>
   );
 };
+              
