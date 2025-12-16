@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { MdAddShoppingCart } from "react-icons/md";
 
@@ -13,6 +13,10 @@ export const Card = ({
   onAddToCart,
   disabled, // Esta prop recibe el estado de si está logueado o no
 }) => {
+  const [quantity, setQuantity] = useState(1);
+
+  const handleDecrease = () => setQuantity(q => q > 1 ? q - 1 : 1);
+  const handleIncrease = () => setQuantity(q => q + 1);
   return (
     <div className="card border-0" style={{ maxWidth: "320px" }}>
       <Link to={`/product/${id}`} className="text-decoration-none text-dark">
@@ -66,27 +70,54 @@ export const Card = ({
         </div>
       </Link>
 
-      {/* Botón de carrito - Mantiene tu estilo w-25 */}
-      <button
-        type="button"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          // Si está deshabilitado, muestra alerta y no ejecuta onAddToCart
-          if (disabled) {
-            alert("Debes iniciar sesión para agregar productos al carrito.");
-            return;
-          }
-          if (onAddToCart) onAddToCart();
-        }}
-        className={`btn w-25 mt-2 ${disabled ? "btn-secondary" : "btn-dark"}`}
-        style={{
-          cursor: disabled ? "not-allowed" : "pointer",
-          opacity: disabled ? 0.6 : 1,
-        }}
-      >
-        <MdAddShoppingCart color="white" />
-      </button>
+      {/* Botón de carrito con controles de cantidad */}
+      <div className="d-flex align-items-center mt-2">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // Si está deshabilitado, muestra alerta y no ejecuta onAddToCart
+            if (disabled) {
+              alert("Debes iniciar sesión para agregar productos al carrito.");
+              return;
+            }
+            if (onAddToCart) onAddToCart(quantity); // Pasar quantity
+          }}
+          className={`btn flex-grow-1 me-1 ${disabled ? "btn-secondary" : "btn-dark"}`}
+          style={{
+            cursor: disabled ? "not-allowed" : "pointer",
+            opacity: disabled ? 0.6 : 1,
+          }}
+        >
+          <MdAddShoppingCart color="white" />
+        </button>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleDecrease();
+          }}
+          className="btn btn-outline-secondary btn-sm"
+          disabled={disabled}
+        >
+          −
+        </button>
+        <span className="mx-2 fw-semibold">{quantity}</span>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleIncrease();
+          }}
+          className="btn btn-outline-secondary btn-sm"
+          disabled={disabled}
+        >
+          +
+        </button>
+      </div>
     </div>
   );
 };

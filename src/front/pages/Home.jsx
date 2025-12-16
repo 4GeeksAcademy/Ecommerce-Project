@@ -31,7 +31,7 @@ export const Home = () => {
     fetchProducts();
   }, [store.auth.accessToken]);
 
-  const handleAddToCart = async (product) => {
+  const handleAddToCart = async (product, quantity = 1) => {
     if (!store.auth.isLoggedIn) {
       alert("Debes iniciar sesión para agregar productos al carrito.");
       return;
@@ -41,7 +41,7 @@ export const Home = () => {
       alert("Este producto no tiene variantes disponibles.");
       return;
     }
-    await addToCart(dispatch, store.auth.accessToken, variantId, 1);
+    await addToCart(dispatch, store.auth.accessToken, variantId, quantity);
   };
 
   const womenProducts = products.filter((p) => p.category === "Ropa Mujer");
@@ -65,7 +65,7 @@ export const Home = () => {
                   image={product.image_url}
                   isFavorite={favorites.includes(product.id)}   // 👈 ahora viene del contexto
                   onToggleFavorite={() => toggleFavorite(product.id)} // 👈 contexto
-                  onAddToCart={() => handleAddToCart(product)}
+                  onAddToCart={(quantity) => handleAddToCart(product, quantity)}
                   disabled={!store.auth.isLoggedIn}
                 />
               </div>
@@ -86,9 +86,8 @@ export const Home = () => {
                   image={product.image_url}
                   isFavorite={favorites.includes(product.id)}   // 👈 contexto
                   onToggleFavorite={() => toggleFavorite(product.id)} // 👈 contexto
-                  onAddToCart={() => handleAddToCart(product)}
+                  onAddToCart={(quantity) => handleAddToCart(product, quantity)}
                   disabled={!store.auth.isLoggedIn}
-
                 />
               </div>
             ))}
