@@ -30,3 +30,52 @@ export const removeCartItem = async (dispatch, token, productId) => {
   });
   dispatch({ type: "REMOVE_CART_ITEM", payload: productId });
 };
+
+
+
+//producList
+
+export const fetchProducts = async (filters = {}) => {
+  const params = new URLSearchParams();
+
+  if (filters.category) params.set("category", filters.category);
+  if (filters.size) params.set("size", filters.size);
+  if (filters.color) params.set("color", filters.color);
+  if (filters.in_stock) params.set("in_stock", "true");
+
+  const qs = params.toString();
+  const url = `/products${qs ? `?${qs}` : ""}`;
+
+  const res = await fetch(url);
+  const text = await res.text();
+
+  if (!res.ok) throw new Error(`HTTP ${res.status} - ${text}`);
+
+  // por si viene vacío
+  if (!text) return [];
+
+  const data = JSON.parse(text);
+
+  // normaliza por si el backend retorna { products: [] } o { results: [] }
+  if (Array.isArray(data)) return data;
+  if (data?.products && Array.isArray(data.products)) return data.products;
+  if (data?.results && Array.isArray(data.results)) return data.results;
+
+  return [];
+};
+
+
+export const fetchProductDetail = async (productId) => {
+  if (!productId) throw new Error("productId is required");
+
+  const url = `/products/${productId}`;
+
+  const res = await fetch(url);
+  const text = await res.text();
+
+  if (!res.ok) throw new Error(`HTTP ${res.status} - ${text}`);
+
+  if (!text) return null;
+
+  return JSON.parse(text);
+};
