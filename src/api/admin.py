@@ -2,7 +2,7 @@ import os
 import inspect
 from flask_admin import Admin
 from . import models
-from .models import db, User, Cart, CartItem, Category, Order, OrderItem, Product, ProductImage, Variant
+from .models import db, User, Cart, CartItem, Category, Subcategory, Order, OrderItem, Product, ProductImage, Variant
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.theme import Bootstrap4Theme
 
@@ -28,5 +28,7 @@ def setup_admin(app):
     admin.add_view(ModelView(Product, db.session))
     admin.add_view(ModelView(ProductImage, db.session))
     admin.add_view(ModelView(Variant, db.session))
+    admin.add_view(ModelView(Subcategory, db.session))
+
 
 

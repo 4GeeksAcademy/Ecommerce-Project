@@ -65,6 +65,7 @@ class Product(db.Model):
     # stock = db.Column(db.Integer, default=0)
 
     category_id = db.Column(db.Integer, db.ForeignKey("categories.id"))
+    subcategory_id = db.Column(db.Integer, db.ForeignKey("subcategories.id"), nullable=True)
 
     # Relación con Variant: Un producto tiene muchas variantes
     variants = db.relationship(
@@ -86,6 +87,7 @@ class Product(db.Model):
             "image_url": self.image_url,
             "stock": self.total_stock,
             "category": self.category.name if self.category else None,
+            "subcategory": self.subcategory.name if self.subcategory else None,
         }
         if include_variants:
             data["variants"] = [v.serialize() for v in self.variants]
@@ -251,3 +253,23 @@ class ProductImage(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+class Subcategory(db.Model):
+    __tablename__ = "subcategories"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+
+    # Relación con Category (cada subcategoría pertenece a una categoría grande)
+    category_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=False)
+    category = db.relationship("Category", backref="subcategories", lazy=True)
+
+    # Relación con productos
+    products = db.relationship("Product", backref="subcategory", lazy=True)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "category_id": self.category_id,
+            "category_name": self.category.name if self.category else None
+        }

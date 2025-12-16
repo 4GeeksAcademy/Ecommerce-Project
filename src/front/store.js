@@ -1,8 +1,9 @@
 export const initialStore = () => {
+  const token = localStorage.getItem("access_token");
   return {
     auth: {
-      isLoggedIn: false,
-      accessToken: localStorage.getItem("access_token") || null,
+      isLoggedIn: !!token,
+      accessToken: token,
       user: JSON.parse(localStorage.getItem("user_data")) || null,
       isAdmin: false,
     },
@@ -25,7 +26,6 @@ export const initialStore = () => {
   };
 };
 
-// 2. REDUCER
 export default function storeReducer(store, action = {}) {
   switch (action.type) {
     // --- AUTENTICACIÓN ---
@@ -57,26 +57,35 @@ export default function storeReducer(store, action = {}) {
       };
 
     // --- CARRITO ---
-    case "SET_CART":
-      return {
-        ...store,
-        cart: {
-          ...store.cart,
-          items: action.payload.items,
-          total: action.payload.total,
-          count: action.payload.items.length,
-          isLoading: false,
-        },
-      };
-
     case "CART_LOADING":
       return {
         ...store,
+        cart: { ...store.cart, isLoading: true },
+      };
+
+    case "SET_CART": {
+      const payload = action.payload || {};
+      const items = Array.isArray(payload.items) ? payload.items : [];
+      const total = items.reduce((acc, it) => {
+        const price =
+          it.product?.base_price != null
+            ? Number(it.product.base_price)
+            : Number(it.product?.price ?? 0);
+        return acc + price * (it.quantity || 1);
+      }, 0);
+      const count = items.reduce((acc, it) => acc + (it.quantity || 1), 0);
+
+      return {
+        ...store,
         cart: {
           ...store.cart,
-          isLoading: true,
+          items,
+          total,
+          count,
+          isLoading: false,
         },
       };
+    }
 
     // --- PRODUCTOS ---
     case "SET_PRODUCTS":
@@ -84,7 +93,7 @@ export default function storeReducer(store, action = {}) {
         ...store,
         products: {
           ...store.products,
-          list: action.payload,
+          list: Array.isArray(action.payload) ? action.payload : [],
         },
       };
 
@@ -93,7 +102,7 @@ export default function storeReducer(store, action = {}) {
         ...store,
         products: {
           ...store.products,
-          categories: action.payload,
+          categories: Array.isArray(action.payload) ? action.payload : [],
         },
       };
 
@@ -102,7 +111,7 @@ export default function storeReducer(store, action = {}) {
         ...store,
         products: {
           ...store.products,
-          detail: action.payload,
+          detail: action.payload || null,
         },
       };
 
@@ -112,7 +121,7 @@ export default function storeReducer(store, action = {}) {
         ...store,
         orders: {
           ...store.orders,
-          userOrders: action.payload,
+          userOrders: Array.isArray(action.payload) ? action.payload : [],
         },
       };
 
@@ -121,7 +130,7 @@ export default function storeReducer(store, action = {}) {
         ...store,
         orders: {
           ...store.orders,
-          adminOrders: action.payload,
+          adminOrders: Array.isArray(action.payload) ? action.payload : [],
         },
       };
 

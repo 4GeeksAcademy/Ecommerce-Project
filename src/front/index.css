@@ -3,6 +3,9 @@ body,
 #root {
   height: 100%;
 }
+body{
+  margin: 0;
+}
 .compra-container {
   position: relative;
 }
