@@ -74,11 +74,11 @@ export const Home = () => {
                   variantId={product.variants?.[0]?.id}
                   name={product.name}
                   price={`€${product.base_price}`}
-                  image={product.image_url}
+                  image={product.gallery && product.gallery.length > 0 ? product.gallery[0].url : null} //cambio para ver imagen
                   isFavorite={favorites.includes(product.id)}  
                   onToggleFavorite={() => toggleFavorite(product.id)} 
                   onAddToCart={(quantity) => handleAddToCart(product, quantity)}
-                  disabled={!store.auth.isLoggedIn}
+                  disabled={!store.auth.isLoggedIn}git
                 />
               </div>
             ))}
