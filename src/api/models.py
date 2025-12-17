@@ -126,16 +126,26 @@ class Variant(db.Model):
 class Order(db.Model):
     __tablename__ = "orders"
     id = db.Column(db.Integer, primary_key=True)
-    total_amount = db.Column(db.Float, nullable=False)
+   
     # Pending, Shipped, Delivered
     status = db.Column(db.String(50), default="Pending")
     created_at = db.Column(
         db.DateTime, default=lambda: datetime.now(timezone.utc))
     # Campos de envío para el checkout (Frame: Checkout)
-    shipping_address = db.Column(db.String(255))
-    city = db.Column(db.String(100))
-    region = db.Column(db.String(100))
+    customer_name = db.Column(db.String(120), nullable=False)
+    shipping_address = db.Column(db.String(255), nullable=False)
+    comuna = db.Column(db.String(120))
+    city = db.Column(db.String(120))
+    region = db.Column(db.String(120))
+    country = db.Column(db.String(120))
     zip_code = db.Column(db.String(20))
+    phone = db.Column(db.String(20))
+
+    # Método de pago
+    payment_method = db.Column(db.String(50))
+
+    # Totales
+    total_amount = db.Column(db.Float, default=0.0)
 
     # Relación con OrderItem: Una orden tiene muchos ítems
     items = db.relationship('OrderItem', backref='order',
@@ -148,11 +158,18 @@ class Order(db.Model):
         return {
             "id": self.id,
             "user_id": self.user_id,
-            "total_amount": self.total_amount,
             "status": self.status,
-            "created_at": self.created_at.isoformat(),
+            "customer_name": self.customer_name,
             "shipping_address": self.shipping_address,
-            "items": [item.serialize() for item in self.items]
+            "comuna": self.comuna,
+            "city": self.city,
+            "region": self.region,
+            "country": self.country,
+            "zip_code": self.zip_code,
+            "phone": self.phone,
+            "payment_method": self.payment_method,
+            "total_amount": self.total_amount,
+            "items": [item.serialize() for item in self.items],
         }
 
 

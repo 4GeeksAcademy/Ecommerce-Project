@@ -164,10 +164,15 @@ def checkout():
 
     data = request.get_json()
     # Los datos de envío se usan aquí
+    customer_name = data.get("nombre")
     shipping_address = data.get('shipping_address', current_user.address) # Usar dirección del perfil si no se proporciona
+    comuna = data.get("comuna")
     city = data.get('city')
     region = data.get('region')
+    country = data.get("pais")
     zip_code = data.get('zip_code')
+    phone = data.get("telefono")
+    payment_method = data.get("metodoPago")
 
     cart = Cart.query.filter_by(user_id=current_user.id).first()
     if not cart or not cart.items:
@@ -181,10 +186,15 @@ def checkout():
         new_order = Order(
             user_id=current_user.id,
             status="Pending",
+            customer_name=customer_name,
             shipping_address=shipping_address,
+            comuna=comuna,
             city=city,
             region=region,
+            country=country,
             zip_code=zip_code,
+            phone=phone,
+            payment_method=payment_method,
         )
         db.session.add(new_order)
         db.session.flush()
