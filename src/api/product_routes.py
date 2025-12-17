@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from api.models import db, Product, Variant, Category, User
+from api.models import db, Product, Variant, Category, User, Subcategory
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.exc import IntegrityError
 from functools import wraps
@@ -67,6 +67,7 @@ def create_product(admin_user):
     name = data.get('name')
     base_price = data.get('base_price')
     category_id = data.get('category_id')
+    subcategory_id = data.get('subcategory_id') 
     
     if not all([name, base_price, category_id]):
         return jsonify({"msg": "Faltan campos obligatorios: name, base_price, category_id"}), 400
@@ -75,6 +76,13 @@ def create_product(admin_user):
     category = Category.query.get(category_id)
     if not category:
         return jsonify({"msg": "Categoría no encontrada"}), 404
+    
+    # Verificar subcategoría si viene
+    subcategory = None
+    if subcategory_id:
+        subcategory = Subcategory.query.get(subcategory_id)
+        if not subcategory:
+            return jsonify({"msg": "Subcategoría no encontrada"}), 404
 
     try:
         new_product = Product(
@@ -82,7 +90,8 @@ def create_product(admin_user):
             description=data.get('description'),
             base_price=base_price,
             image_url=data.get('image_url'),
-            category_id=category_id
+            category_id=category_id,
+            subcategory_id=subcategory_id
         )
         db.session.add(new_product)
         db.session.commit()
@@ -121,6 +130,12 @@ def update_product(admin_user, product_id):
         if not category:
             return jsonify({"msg": "Nueva Categoría no encontrada"}), 404
         product.category_id = data['category_id']
+    if 'subcategory_id' in data:   
+        subcategory = Subcategory.query.get(data['subcategory_id'])
+        if not subcategory:
+            return jsonify({"msg": "Nueva Subcategoría no encontrada"}), 404
+        product.subcategory_id = data['subcategory_id']
+        
 
     try:
         db.session.commit()
@@ -375,5 +390,93 @@ def search_products():
         return jsonify({"msg": "No se encontraron productos que coincidan con los criterios."}), 404
 
     return jsonify([p.serialize() for p in products]), 200
+
+# Crear subcategoría
+@product.route("/subcategories", methods=["POST"])
+@admin_required
+def create_subcategory(admin_user):
+    data = request.get_json() or {}
+    name = data.get("name")
+    category_id = data.get("category_id")
+
+    if not name or not category_id:
+        return jsonify({"msg": "Nombre y category_id son requeridos"}), 400
+
+    # Verificar que la categoría exista
+    category = Category.query.get(category_id)
+    if not category:
+        return jsonify({"msg": "Categoría no encontrada"}), 404
+
+    if Subcategory.query.filter_by(name=name, category_id=category_id).first():
+        return jsonify({"msg": "Ya existe una subcategoría con ese nombre en esta categoría"}), 409
+
+    try:
+        new_sub = Subcategory(name=name, category_id=category_id)
+        db.session.add(new_sub)
+        db.session.commit()
+        return jsonify({"msg": "Subcategoría creada", "subcategory": new_sub.serialize()}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": "Error al crear la subcategoría", "error": str(e)}), 500
+
+
+# Listar todas las subcategorías
+@product.route("/subcategories", methods=["GET"])
+def get_subcategories():
+    subs = Subcategory.query.all()
+    return jsonify([s.serialize() for s in subs]), 200
+
+
+# Obtener subcategorías por categoría
+@product.route("/categories/<int:category_id>/subcategories", methods=["GET"])
+def get_subcategories_by_category(category_id):
+    subs = Subcategory.query.filter_by(category_id=category_id).all()
+    return jsonify([s.serialize() for s in subs]), 200
+
+
+# Actualizar subcategoría
+@product.route("/subcategories/<int:subcategory_id>", methods=["PUT"])
+@admin_required
+def update_subcategory(admin_user, subcategory_id):
+    sub = Subcategory.query.get(subcategory_id)
+    if not sub:
+        return jsonify({"msg": "Subcategoría no encontrada"}), 404
+
+    data = request.get_json() or {}
+    new_name = data.get("name")
+
+    if not new_name:
+        return jsonify({"msg": "Nuevo nombre requerido"}), 400
+
+    if Subcategory.query.filter(Subcategory.name == new_name, Subcategory.id != subcategory_id).first():
+        return jsonify({"msg": "Ya existe otra subcategoría con ese nombre"}), 409
+
+    try:
+        sub.name = new_name
+        db.session.commit()
+        return jsonify({"msg": "Subcategoría actualizada", "subcategory": sub.serialize()}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": "Error al actualizar la subcategoría", "error": str(e)}), 500
+
+
+# Eliminar subcategoría
+@product.route("/subcategories/<int:subcategory_id>", methods=["DELETE"])
+@admin_required
+def delete_subcategory(admin_user, subcategory_id):
+    sub = Subcategory.query.get(subcategory_id)
+    if not sub:
+        return jsonify({"msg": "Subcategoría no encontrada"}), 404
+
+    if sub.products:
+        return jsonify({"msg": "No se puede eliminar la subcategoría. Primero desvincule o elimine los productos asociados."}), 400
+
+    try:
+        db.session.delete(sub)
+        db.session.commit()
+        return jsonify({"msg": f"Subcategoría ID {subcategory_id} eliminada"}), 204
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": "Error al eliminar la subcategoría", "error": str(e)}), 500
 
 
