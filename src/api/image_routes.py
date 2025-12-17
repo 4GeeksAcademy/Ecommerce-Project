@@ -61,7 +61,7 @@ def delete_image(id):
 
     try:
 
-        item = Image.query.get(id)
+        item = ProductImage.query.get(id)
 
         if not item:
             return jsonify({"error": "Imagen no ha sido encontrada"}), 404
