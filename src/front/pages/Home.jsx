@@ -59,6 +59,15 @@ export const Home = () => {
   const womenProducts = getOnePerSubcategory("Ropa Mujer");
   const menProducts = getOnePerSubcategory("Ropa Hombre");
 
+  // Función de conversión de monedas
+  const formatCLP = (value) => {
+  return new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
+    minimumFractionDigits: 0
+  }).format(value);
+};
+
   return (
     <>
       <Carousel />
@@ -73,7 +82,7 @@ export const Home = () => {
                   id={product.id}
                   variantId={product.variants?.[0]?.id}
                   name={product.name}
-                  price={`€${product.base_price}`}
+                  price={formatCLP(product.base_price)}
                   image={product.gallery && product.gallery.length > 0 ? product.gallery[0].url : null} //cambio para ver imagen
                   isFavorite={favorites.includes(product.id)}  
                   onToggleFavorite={() => toggleFavorite(product.id)} 
@@ -94,7 +103,7 @@ export const Home = () => {
                   id={product.id}
                   variantId={product.variants?.[0]?.id}
                   name={product.name}
-                  price={`€${product.base_price}`}
+                  price={formatCLP(product.base_price)}
                   image={product.gallery && product.gallery.length > 0 ? product.gallery[0].url : null} //cambio para ver imagen
                   isFavorite={favorites.includes(product.id)}   
                   onToggleFavorite={() => toggleFavorite(product.id)} 
