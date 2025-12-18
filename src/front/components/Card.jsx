@@ -5,10 +5,10 @@ import { MdAddShoppingCart } from "react-icons/md";
 export const Card = ({
   id,
   variantId,
-  name,
-  price,
-  image,
-  isFavorite,
+  name,  
+  price,     
+  image,     
+  isFavorite,  
   onToggleFavorite,
   onAddToCart,
   disabled, // Esta prop recibe el estado de si está logueado o no

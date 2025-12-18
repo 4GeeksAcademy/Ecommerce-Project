@@ -3,11 +3,11 @@ import { Card } from "../components/Card.jsx";
 import { Carousel } from "../components/Carousel";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { addToCart } from "../actions";
-import { useFavorites } from "../components/FavoritesContext.jsx"; // 👈 importa el contexto
+import { useFavorites } from "../components/FavoritesContext.jsx"; 
 
 export const Home = () => {
   const { store, dispatch } = useGlobalReducer();
-  const { favorites, toggleFavorite } = useFavorites(); // 👈 usa el contexto
+  const { favorites, toggleFavorite } = useFavorites(); 
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -23,6 +23,7 @@ export const Home = () => {
           },
         });
         const data = await res.json();
+        //console.log("Productos desde la API:", data);
         setProducts(data || []);
       } catch (err) {
         console.error("Error cargando productos:", err);
@@ -62,9 +63,9 @@ export const Home = () => {
                   variantId={product.variants?.[0]?.id}
                   name={product.name}
                   price={`€${product.base_price}`}
-                  image={product.image_url}
-                  isFavorite={favorites.includes(product.id)}   // 👈 ahora viene del contexto
-                  onToggleFavorite={() => toggleFavorite(product.id)} // 👈 contexto
+                  image={product.gallery && product.gallery.length > 0 ? product.gallery[0].url : null}
+                  isFavorite={favorites.includes(product.id)}  
+                  onToggleFavorite={() => toggleFavorite(product.id)} 
                   onAddToCart={(quantity) => handleAddToCart(product, quantity)}
                   disabled={!store.auth.isLoggedIn}
                 />
@@ -83,9 +84,9 @@ export const Home = () => {
                   variantId={product.variants?.[0]?.id}
                   name={product.name}
                   price={`€${product.base_price}`}
-                  image={product.image_url}
-                  isFavorite={favorites.includes(product.id)}   // 👈 contexto
-                  onToggleFavorite={() => toggleFavorite(product.id)} // 👈 contexto
+                  image={product.gallery && product.gallery.length > 0 ? product.gallery[0].url : null}
+                  isFavorite={favorites.includes(product.id)}   
+                  onToggleFavorite={() => toggleFavorite(product.id)} 
                   onAddToCart={(quantity) => handleAddToCart(product, quantity)}
                   disabled={!store.auth.isLoggedIn}
                 />
@@ -97,12 +98,6 @@ export const Home = () => {
     </>
   );
 };
-
-
-
-
-
-
 
 
 
