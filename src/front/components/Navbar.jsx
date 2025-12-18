@@ -29,28 +29,28 @@ export const Navbar = () => {
   };
 
   const handleSearch = async () => {
-  if (searchTerm.trim() === "") return;
+    if (searchTerm.trim() === "") return;
 
-  try {
-    // Usamos el endpoint que me mostraste
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/search?q=${searchTerm}`);
-    
-    if (response.status === 404) {
-      alert("No se encontraron productos.");
-      return;
+    try {
+      // Usamos el endpoint 
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/search?q=${searchTerm}`);
+
+      if (response.status === 404) {
+        alert("No se encontraron productos.");
+        return;
+      }
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Navegamos a una página de resultados pasando los datos
+        navigate("/search-results", { state: { results: data, term: searchTerm } });
+        setSearchTerm(""); // Limpiamos el buscador
+      }
+    } catch (error) {
+      console.error("Error buscando productos:", error);
     }
-
-    const data = await response.json();
-
-    if (response.ok) {
-      // Navegamos a una página de resultados pasando los datos
-      navigate("/search-results", { state: { results: data, term: searchTerm } });
-      setSearchTerm(""); // Limpiamos el buscador
-    }
-  } catch (error) {
-    console.error("Error buscando productos:", error);
-  }
-};
+  };
 
   const totalItems = store.cart.count;
 
@@ -59,10 +59,10 @@ export const Navbar = () => {
       <div className="container-fluid">
 
         <Link className="navbar-brand ms-5" to="/">
-          <img 
+          <img
             src={trendifyLogo}
             alt="Trendify"
-            style={{ height: "60px", objectFit: "contain", verticalAlign: "middle"}}
+            style={{ height: "60px", objectFit: "contain", verticalAlign: "middle" }}
           />
         </Link>
 
@@ -110,29 +110,82 @@ export const Navbar = () => {
 
           <ul className="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center">
 
-            {/* Dropdown Mujer */}
-            <li className="nav-item dropdown me-2">
-              <Link className="nav-link dropdown-toggle" to="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Mujer
+            <li className="nav-item dropdown me-3 d-flex align-items-center">
+
+              {/* todos los productos */}
+              <Link
+                to="/products"
+                className="nav-link pe-1"
+              >
+                Nuestros productos
               </Link>
+
+             
+              <button
+                className="nav-link dropdown-toggle dropdown-toggle-split"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                style={{ background: "none", border: "none" }}
+              >
+                <span className="visually-hidden">Toggle Dropdown</span>
+              </button>
+
               <ul className="dropdown-menu">
-                <li><Link className="dropdown-item" to="/mujer/blusas">Blusas</Link></li>
-                <li><Link className="dropdown-item" to="/mujer/faldas">Faldas</Link></li>
-                <li><Link className="dropdown-item" to="/mujer/zapatos">Zapatos</Link></li>
+
+                {/* MUJER */}
+               
+
+                <li>
+                  <Link className="dropdown-item fw-semibold" to="/products?category=mujer">
+                    Productos mujer
+                  </Link>
+                </li>
+
+                <li className="ps-3">
+                  <Link className="dropdown-item" to="/products?category=mujer&sub=blusas">
+                    Blusas
+                  </Link>
+                </li>
+                <li className="ps-3">
+                  <Link className="dropdown-item" to="/products?category=mujer&sub=faldas">
+                    Faldas
+                  </Link>
+                </li>
+                <li className="ps-3">
+                  <Link className="dropdown-item" to="/products?category=mujer&sub=zapatos">
+                    Zapatos
+                  </Link>
+                </li>
+
+                <li><hr className="dropdown-divider" /></li>
+
+                {/* HOMBRE */}
+
+                <li>
+                  <Link className="dropdown-item fw-semibold" to="/products?category=hombre">
+                    Producto hombre
+                  </Link>
+                </li>
+
+                <li className="ps-3">
+                  <Link className="dropdown-item" to="/products?category=hombre&sub=camisas">
+                    Camisas
+                  </Link>
+                </li>
+                <li className="ps-3">
+                  <Link className="dropdown-item" to="/products?category=hombre&sub=pantalones">
+                    Pantalones
+                  </Link>
+                </li>
+                <li className="ps-3">
+                  <Link className="dropdown-item" to="/products?category=hombre&sub=zapatos">
+                    Zapatos
+                  </Link>
+                </li>
+
               </ul>
             </li>
 
-            {/* Dropdown Hombre */}
-            <li className="nav-item dropdown me-3">
-              <Link className="nav-link dropdown-toggle" to="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Hombre
-              </Link>
-              <ul className="dropdown-menu">
-                <li><Link className="dropdown-item" to="/hombre/camisas">Camisas</Link></li>
-                <li><Link className="dropdown-item" to="/hombre/pantalones">Pantalones</Link></li>
-                <li><Link className="dropdown-item" to="/hombre/zapatos">Zapatos</Link></li>
-              </ul>
-            </li>
 
             {/* Favoritos */}
             <li className="nav-item me-3">
