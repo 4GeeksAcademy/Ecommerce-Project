@@ -24,10 +24,7 @@ def get_products():
     # Iniciar consulta base
     query = Product.query
 
-<<<<<<< HEAD
-=======
     # Filtrar por categoría
->>>>>>> 80c99c6c5a32400074c7ef98173c84aa72cce843
     if category:
         query = query.join(Category).filter(Category.name == category)
     
@@ -96,12 +93,8 @@ def create_product(admin_user):
     name = data.get('name')
     base_price = data.get('base_price')
     category_id = data.get('category_id')
-<<<<<<< HEAD
-
-=======
     subcategory_id = data.get('subcategory_id') 
     
->>>>>>> 80c99c6c5a32400074c7ef98173c84aa72cce843
     if not all([name, base_price, category_id]):
         return jsonify({"msg": "Faltan campos obligatorios: name, base_price, category_id"}), 400
 
@@ -427,8 +420,6 @@ def search_products():
         return jsonify({"msg": "No se encontraron productos que coincidan con los criterios."}), 404
 
     return jsonify([p.serialize() for p in products]), 200
-<<<<<<< HEAD
-=======
 
 # Crear subcategoría
 @product.route("/subcategories", methods=["POST"])
@@ -519,4 +510,3 @@ def delete_subcategory(admin_user, subcategory_id):
         return jsonify({"msg": "Error al eliminar la subcategoría", "error": str(e)}), 500
 
 
->>>>>>> 80c99c6c5a32400074c7ef98173c84aa72cce843
