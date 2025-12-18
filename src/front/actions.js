@@ -132,3 +132,7 @@ export const loadAdminOrders = async (dispatch, token) => {
   const data = await res.json();
   dispatch({ type: "SET_ADMIN_ORDERS", payload: data });
 };
+
+
+
+//producList

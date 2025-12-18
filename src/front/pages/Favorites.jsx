@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useFavorites } from "../components/FavoritesContext.jsx";
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 import { Card } from "../components/Card.jsx";
+import { Link } from "react-router-dom";
 
 export function Favorites() {
   const { favorites, removeFavorite } = useFavorites();
@@ -36,6 +37,10 @@ export function Favorites() {
   return (
     <div className="container my-5">
       <h3>Mis Favoritos</h3>
+
+      <Link to="/" className="btn btn-outline-secondary mb-3">
+      ← Volver
+       </Link>
       {favoriteProducts.length === 0 ? (
         <p>No tienes productos favoritos.</p>
       ) : (

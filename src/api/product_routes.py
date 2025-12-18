@@ -24,7 +24,10 @@ def get_products():
     # Iniciar consulta base
     query = Product.query
 
+<<<<<<< HEAD
+=======
     # Filtrar por categoría
+>>>>>>> 80c99c6c5a32400074c7ef98173c84aa72cce843
     if category:
         query = query.join(Category).filter(Category.name == category)
     
@@ -48,6 +51,7 @@ def get_products():
     # Incluimos variantes de productos (tallas, colores, ect) en la vista general para que el cliente sepa qué opciones hay
     return jsonify([p.serialize(include_variants=True) for p in products]), 200
 
+
 # Traer un solo producto con sus variantes tallas, color, etc
 
 @product.route("/products/<int:product_id>", methods=["GET"])
@@ -55,21 +59,23 @@ def get_single_product(product_id):
     product = Product.query.get(product_id)
     if not product:
         return jsonify({"msg": "Producto no encontrado"}), 404
-    
+
     # include_variants=True para mostrar tallas, colores y sus stocks
     return jsonify(product.serialize(include_variants=True)), 200
 
 # Obtener categorías de productos (ID)
+
 
 @product.route("/category/<int:category_id>/products", methods=["GET"])
 def get_products_by_category(category_id):
     products = Product.query.filter_by(category_id=category_id).all()
     if not products:
         return jsonify({"msg": "No se encontraron productos en esta categoría", "products": []}), 200
-        
+
     return jsonify([p.serialize() for p in products]), 200
 
 # Listar todas las categorías para poblar el front
+
 
 @product.route("/categories", methods=["GET"])
 def get_categories():
@@ -77,7 +83,7 @@ def get_categories():
     return jsonify([c.serialize() for c in categories]), 200
 
 
-## Endpoints de administración de productos
+# Endpoints de administración de productos
 
 # 1. Crear producto
 @product.route('/products', methods=['POST'])
@@ -85,13 +91,17 @@ def get_categories():
 def create_product(admin_user):
     """Crea un nuevo producto base (sin variantes inicialmente)."""
     data = request.get_json() or {}
-    
+
     # Campos requeridos
     name = data.get('name')
     base_price = data.get('base_price')
     category_id = data.get('category_id')
+<<<<<<< HEAD
+
+=======
     subcategory_id = data.get('subcategory_id') 
     
+>>>>>>> 80c99c6c5a32400074c7ef98173c84aa72cce843
     if not all([name, base_price, category_id]):
         return jsonify({"msg": "Faltan campos obligatorios: name, base_price, category_id"}), 400
 
@@ -118,7 +128,7 @@ def create_product(admin_user):
         )
         db.session.add(new_product)
         db.session.commit()
-        
+
         return jsonify({"msg": "Producto creado", "product": new_product.serialize()}), 201
 
     except Exception as e:
@@ -126,7 +136,7 @@ def create_product(admin_user):
         return jsonify({"msg": "Error al crear el producto", "error": str(e)}), 500
 
 
-## 2. Actualizar producto
+# 2. Actualizar producto
 
 @product.route("/products/<int:product_id>", methods=["PUT"])
 @admin_required
@@ -137,7 +147,7 @@ def update_product(admin_user, product_id):
         return jsonify({"msg": "Producto no encontrado"}), 404
 
     data = request.get_json() or {}
-    
+
     # Actualizar solo si el campo está presente
     if 'name' in data:
         product.name = data['name']
@@ -168,7 +178,7 @@ def update_product(admin_user, product_id):
         return jsonify({"msg": "Error al actualizar el producto", "error": str(e)}), 500
 
 
-## 3. Eliminar producto
+# 3. Eliminar producto
 
 @product.route("/products/<int:product_id>", methods=["DELETE"])
 @admin_required
@@ -177,15 +187,16 @@ def delete_product(admin_user, product_id):
     product = Product.query.get(product_id)
     if not product:
         return jsonify({"msg": "Producto no encontrado"}), 404
-    
+
     try:
         db.session.delete(product)
         db.session.commit()
-        return jsonify({"msg": f"Producto ID {product_id} y sus variantes eliminados"}), 204 # 204 No Content
+        # 204 No Content
+        return jsonify({"msg": f"Producto ID {product_id} y sus variantes eliminados"}), 204
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": "Error al eliminar el producto. Posiblemente existan órdenes vinculadas.", "error": str(e)}), 400
-    
+
 
 # Categorías: Crear una nueva categoría (Post)
 
@@ -194,10 +205,10 @@ def delete_product(admin_user, product_id):
 def create_category(admin_user):
     data = request.get_json() or {}
     name = data.get('name')
-    
+
     if not name:
         return jsonify({"msg": "El nombre de la categoría es requerido"}), 400
-    
+
     if Category.query.filter_by(name=name).first():
         return jsonify({"msg": "La categoría ya existe"}), 409
 
@@ -212,19 +223,20 @@ def create_category(admin_user):
 
 # Categorías: Actualizar categoría (Put) => Actualizar nombre de cat existente
 
+
 @product.route("/categories/<int:category_id>", methods=["PUT"])
 @admin_required
 def update_category(admin_user, category_id):
     category = Category.query.get(category_id)
     if not category:
         return jsonify({"msg": "Categoría no encontrada"}), 404
-    
+
     data = request.get_json() or {}
     new_name = data.get("name")
 
     if not new_name:
         return jsonify({"msg": "Nuevo nombre de categoría es requerido"}), 400
-    
+
     # Verificar si el nombre nuevo existe
     if Category.query.filter(Category.name == new_name, Category.id != category_id).first():
         return jsonify({"msg": "Ya existe otra categoría con ese nombre"}), 409
@@ -236,7 +248,7 @@ def update_category(admin_user, category_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": "Error al actualizar la categoría", "error": str(e)}), 500
-    
+
 
 # Categorías: Eliminar una categoría (Delete)
 
@@ -247,7 +259,7 @@ def delete_category(admin_user, category_id):
     category = Category.query.get(category_id)
     if not category:
         return jsonify({"msg": "Categoría no encontrada"}), 404
-    
+
     if category.products:
         return jsonify({"msg": "No se puede eliminar la categoría. Primero desvincule o elimine los productos asociados."}), 400
 
@@ -260,10 +272,9 @@ def delete_category(admin_user, category_id):
         return jsonify({"msg": "Error al eliminar la categoría", "error": str(e)}), 500
 
 
+# Administración de las variantes de productos
 
-## Administración de las variantes de productos
-
-## 4. Añadir variante (talla/color) a un producto
+# 4. Añadir variante (talla/color) a un producto
 
 @product.route("/products/<int:product_id>/variants", methods=["POST"])
 @admin_required
@@ -276,10 +287,10 @@ def add_variant(admin_user, product_id):
     size = data.get('size')
     color = data.get('color')
     stock = data.get('stock', 0)
-    
+
     if not all([size, color]):
         return jsonify({"msg": "Talla y color son requeridos"}), 400
-    
+
     try:
         new_variant = Variant(
             product_id=product_id,
@@ -303,19 +314,20 @@ def add_variant(admin_user, product_id):
 @product.route("/products/<int:product_id>/variants/<int:variant_id>", methods=["PUT"])
 @admin_required
 def update_variant(admin_user, product_id, variant_id):
-    
-    # 1. Verificar si el producto existe 
+
+    # 1. Verificar si el producto existe
     product = Product.query.get(product_id)
     if not product:
         return jsonify({"msg": "Producto padre no encontrado"}), 404
-        
+
     # 2. Encontrar la variante
-    variant = Variant.query.filter_by(id=variant_id, product_id=product_id).first()
+    variant = Variant.query.filter_by(
+        id=variant_id, product_id=product_id).first()
     if not variant:
         return jsonify({"msg": "Variante no encontrada para este producto"}), 404
 
     data = request.get_json() or {}
-    
+
     # Actualizar solo si el campo está presente
     if 'size' in data:
         variant.size = data['size']
@@ -348,7 +360,8 @@ def delete_variant(admin_user, product_id, variant_id):
     """Elimina una variante específica de un producto."""
 
     # 1. Encontrar la variante
-    variant = Variant.query.filter_by(id=variant_id, product_id=product_id).first()
+    variant = Variant.query.filter_by(
+        id=variant_id, product_id=product_id).first()
     if not variant:
         return jsonify({"msg": "Variante no encontrada para este producto"}), 404
 
@@ -366,22 +379,23 @@ def delete_variant(admin_user, product_id, variant_id):
 
 @product.route('/search', methods=['GET'])
 def search_products():
-    
+
     # Obtener parámetros de la URL
-    q = request.args.get('q') # Texto de búsqueda (nombre o descripción)
+    q = request.args.get('q')  # Texto de búsqueda (nombre o descripción)
     category_id = request.args.get('category_id')
     min_price = request.args.get('min_price')
     max_price = request.args.get('max_price')
 
     # Base de la consulta
     query = Product.query
-    
+
     # 1. Filtrar por texto (nombre o descripción)
     if q:
         # Usamos icontains para una búsqueda insensible a mayúsculas/minúsculas y parcial
-        search_filter = Product.name.ilike(f'%{q}%') | Product.description.ilike(f'%{q}%')
+        search_filter = Product.name.ilike(
+            f'%{q}%') | Product.description.ilike(f'%{q}%')
         query = query.filter(search_filter)
-        
+
     # 2. Filtrar por categoría
     if category_id:
         try:
@@ -389,7 +403,7 @@ def search_products():
             query = query.filter(Product.category_id == category_id)
         except ValueError:
             return jsonify({"msg": "category_id debe ser un número entero"}), 400
-            
+
     # 3. Filtrar por rango de precio (precio mínimo)
     if min_price:
         try:
@@ -397,7 +411,7 @@ def search_products():
             query = query.filter(Product.base_price >= min_price)
         except ValueError:
             return jsonify({"msg": "min_price debe ser un número"}), 400
-            
+
     # 4. Filtrar por rango de precio (precio máximo)
     if max_price:
         try:
@@ -413,6 +427,8 @@ def search_products():
         return jsonify({"msg": "No se encontraron productos que coincidan con los criterios."}), 404
 
     return jsonify([p.serialize() for p in products]), 200
+<<<<<<< HEAD
+=======
 
 # Crear subcategoría
 @product.route("/subcategories", methods=["POST"])
@@ -503,3 +519,4 @@ def delete_subcategory(admin_user, subcategory_id):
         return jsonify({"msg": "Error al eliminar la subcategoría", "error": str(e)}), 500
 
 
+>>>>>>> 80c99c6c5a32400074c7ef98173c84aa72cce843

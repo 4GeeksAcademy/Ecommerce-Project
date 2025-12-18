@@ -1,3 +1,4 @@
+import React from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FaSearch, FaUser } from "react-icons/fa";
 import { LuShoppingCart } from "react-icons/lu";
