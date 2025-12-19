@@ -3,6 +3,7 @@ import { useFavorites } from "../components/FavoritesContext.jsx";
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 import { Card } from "../components/Card.jsx";
 import { Link } from "react-router-dom";
+import { addToCart } from "../actions";
 
 const formatCLP = (value) => {
   return new Intl.NumberFormat('es-CL', {
@@ -14,7 +15,7 @@ const formatCLP = (value) => {
 
 export function Favorites() {
   const { favorites, removeFavorite } = useFavorites();
-  const { store } = useGlobalReducer();
+  const { store, dispatch } = useGlobalReducer();
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -42,6 +43,20 @@ export function Favorites() {
     favorites.includes(p.id || p.product_id)
   );
 
+  // 3. Creamos la función para manejar el carrito
+  const handleAddToCart = async (product, quantity = 1) => {
+    if (!store.auth.isLoggedIn) {
+      alert("Debes iniciar sesión para agregar productos al carrito.");
+      return;
+    }
+    const variantId = product.variants?.[0]?.id;
+    if (!variantId) {
+      alert("Este producto no tiene variantes disponibles.");
+      return;
+    }
+    await addToCart(dispatch, store.auth.accessToken, variantId, quantity);
+  };
+
   return (
     <div className="container my-5">
       <h3>Mis Favoritos</h3>
@@ -63,6 +78,8 @@ export function Favorites() {
                 image={product.gallery && product.gallery.length > 0 ? product.gallery[0].url : null} //cambio para ver imagen
                 isFavorite={true}
                 onToggleFavorite={() => removeFavorite(product.id)}
+                onAddToCart={() => handleAddToCart(product)} 
+                disabled={!store.auth.isLoggedIn}
               />
             </div>
           ))}

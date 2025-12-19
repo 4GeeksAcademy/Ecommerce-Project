@@ -159,7 +159,7 @@ export const Navbar = () => {
                   <li><Link className="dropdown-item" to="/products?category=hombre&sub_id=14">Poleras</Link></li>
                   <li><Link className="dropdown-item" to="/products?category=hombre&sub_id=15">Pantalones</Link></li>
                   <li><Link className="dropdown-item" to="/products?category=hombre&sub_id=16">Chaquetas</Link></li>
-                   <li><Link className="dropdown-item" to="/products?category=hombre&sub_id=17">Zapatos</Link></li>
+                  <li><Link className="dropdown-item" to="/products?category=hombre&sub_id=17">Zapatos</Link></li>
                   <li><Link className="dropdown-item" to="/products?category=hombre&sub_id=19">Accesorios</Link></li>
                 </ul>
               </li>

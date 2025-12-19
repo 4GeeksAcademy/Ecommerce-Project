@@ -86,6 +86,15 @@ export default function storeReducer(store, action = {}) {
         },
       };
     }
+    // AÑADE ESTE CASO AQUÍ:
+    case "CLEAR_CART":
+      return {
+        ...store,
+        cart: {
+          ...store.cart,
+          items: [] // Limpiamos la lista de items
+        }
+      };
 
     // --- PRODUCTOS ---
     case "SET_PRODUCTS":

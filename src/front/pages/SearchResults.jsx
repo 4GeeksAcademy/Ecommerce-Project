@@ -97,7 +97,7 @@ export const SearchResults = () => {
                     style={{ cursor: 'pointer' }}
                   >
                     <img 
-                      src={product.image_url || (product.gallery?.[0]?.url) || "https://via.placeholder.com/200"} 
+                      src={product.gallery && product.gallery.length > 0 ? product.gallery[0].url : null} 
                       className="card-img-top" 
                       alt={product.name}
                       style={{ height: "200px", objectFit: "cover" }}

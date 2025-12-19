@@ -25,7 +25,7 @@ export const Comprar = () => {
 
                 <h3>Gracias por preferirnos <RiUserHeartFill /></h3>
 
-                <Link to="/home" className="link-info">Volver al inicio</Link>
+                <Link to="/" className="link-info">Volver al inicio</Link>
             </div>
         </div>
     )

@@ -1,8 +1,19 @@
 import React, { useState } from "react";
-import { useOutletContext, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import useGlobalReducer from "../hooks/useGlobalReducer";
+
+
+const formatCLP = (value) => {
+  return new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
+    minimumFractionDigits: 0
+  }).format(value);
+};
 
 export const Checkout = () => {
-    const { cart, setCart } = useOutletContext();
+   // const { cart, setCart } = useOutletContext();
+   const { store, dispatch } = useGlobalReducer();
     const navigate = useNavigate();
     const token = localStorage.getItem("token");
 
@@ -23,15 +34,24 @@ export const Checkout = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // Cálculos de precios
-    const subtotal = cart.reduce((acc, product) => {
-        const price = parseFloat(product.price.toString().replace("€", ""));
-        const quantity = product.quantity || 1;
-        return acc + price * quantity;
+    // 1. Obtener los ítema del store global
+    const items = store.cart.items || [];
+
+    // 2. Cálculos de precios
+    const subtotal = items.reduce((acc, item) => {
+        const product = item.product || {};
+        // Convertimos el base_price (string de SQL) a número real
+        const unitPrice = product.base_price != null
+            ? Number(product.base_price)
+            : Number(product.price ?? 0);
+        
+        const quantity = item.quantity || 1;
+        return acc + (unitPrice * quantity);
     }, 0);
 
-    const shipping = 9.99;
+    const shipping = 3000; // Define tu envío en CLP
     const total = subtotal + shipping;
+
 
     //Envío al Backend
     const handleCheckout = async (e) => {
@@ -55,10 +75,10 @@ export const Checkout = () => {
             subtotal: subtotal,
             shipping: shipping,
             total_amount: total,
-            items: cart.map(product => ({
-                product_id: product.id,
-                quantity: product.quantity || 1,
-                price: parseFloat(product.price.toString().replace("€", ""))
+            items: items.map(item => ({
+                product_id: item.product?.id,
+                quantity: item.quantity,
+                price: item.product?.base_price || item.product?.price
             }))
         };
 
@@ -76,27 +96,30 @@ export const Checkout = () => {
 
             if (response.ok) {
                 console.log("Orden creada exitosamente:", data);
-                setCart([]);
-                navigate("/comprar");
+                // 1. Limpiamos el carrito en el store global
+                dispatch({ type: "CLEAR_CART" }); 
+                
+                // 2. IMPORTANTE: Aquí es donde te lleva a la página de éxito
+                // Cambia "/comprar" por la ruta exacta que usabas antes
+                navigate("/comprar"); 
             } else {
-                console.error("Error del servidor:", data.msg);
-                alert("Error al procesar la compra: " + (data.msg || "Error desconocido"));
+                alert("Error: " + (data.msg || "No se pudo procesar la orden"));
             }
         } catch (error) {
             console.error("Error en la conexión:", error);
-            alert("No se pudo conectar con el servidor.");
+            alert("Error de conexión con el servidor.");
         }
     };
 
     return (
         <div className="container my-5">
-            <p className="text-body-secondary">Finalizar la compra</p>
+            <h3 className="text-body">Finalizar la compra</h3>
             <div className="row">
 
                 <div className="col-12 col-lg-8">
-                    <h3 className="mb-4">Información de Envío</h3>
+                    <p className="mb-4">Información de Envío</p>
 
-                    <form onSubmit={handleCheckout} className="bg-white p-4 rounded shadow-sm">
+                    <form onSubmit={handleCheckout} className="bg-white p-4 rounded shadow-sm border">
                         <div className="mb-3">
                             <label className="form-label">Nombre Completo</label>
                             <input type="text" className="form-control" name="nombre" value={formData.nombre} onChange={handleChange} required />
@@ -152,33 +175,37 @@ export const Checkout = () => {
                             </div>
                         </div>
 
-                        <button type="submit" className="btn btn-dark mt-4 w-100">Comprar Ahora</button>
+                        <div className="d-grid gap-2">
+                            <button type="submit" className="btn btn-dark mt-4 btn-lg">Comprar Ahora</button>
+                            <button type="button" className="btn btn-outline-secondary" onClick={() => navigate("/")}>
+                                Seguir Comprando
+                            </button>
+                        </div>
                     </form>
                 </div>
 
-
                 <div className="col-12 col-lg-4 mt-4 mt-lg-0">
-                    <div className="p-4 bg-white rounded shadow-sm">
+                    <div className="p-4 bg-white rounded shadow-sm border">
                         <h5 className="mb-3">Resumen del Pedido</h5>
-                        {cart.map((product) => (
-                            <div key={product.id} className="d-flex justify-content-between mb-2">
-                                <span>{product.name} × {product.quantity || 1}</span>
-                                <span>€{(parseFloat(product.price.toString().replace("€", "")) * (product.quantity || 1)).toFixed(2)}</span>
+                        {items.map((item) => (
+                            <div key={item.id} className="d-flex justify-content-between mb-2">
+                                <span className="small">{item.product?.name} × {item.quantity}</span>
+                                <span className="small">{formatCLP(Number(item.product?.base_price || 0) * item.quantity)}</span>
                             </div>
                         ))}
                         <hr />
                         <div className="d-flex justify-content-between mb-2">
                             <span className="text-muted">Subtotal</span>
-                            <span>€{subtotal.toFixed(2)}</span>
+                            <span>{formatCLP(subtotal)}</span>
                         </div>
                         <div className="d-flex justify-content-between mb-2">
                             <span className="text-muted">Envío</span>
-                            <span>€{shipping.toFixed(2)}</span>
+                            <span>{formatCLP(shipping)}</span>
                         </div>
                         <hr />
-                        <div className="d-flex justify-content-between fw-semibold mb-3">
+                        <div className="d-flex justify-content-between fw-semibold mb-3 fs-5">
                             <span>Total</span>
-                            <span>€{total.toFixed(2)}</span>
+                            <span className="text-primary">{formatCLP(total)}</span>
                         </div>
                     </div>
                 </div>
@@ -381,3 +408,18 @@ export const Checkout = () => {
         </div>
     );
 };*/
+
+/// Modificar
+
+// export const Checkout = () => {
+//     const { store, dispatch } = useGlobalReducer(); 
+//     const navigate = useNavigate();
+//     const cart = store.cart || []; 
+    
+    // ... resto del código ...
+
+//     if (response.ok) {
+//         dispatch({ type: "CLEAR_CART" }); // Limpia el carrito en el store global
+//         navigate("/"); // Te lleva al home
+//     }
+// }
